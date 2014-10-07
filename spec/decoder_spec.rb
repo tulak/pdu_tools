@@ -32,4 +32,14 @@ describe PDUTools::Decoder do
       expect(message_part.user_data_header[:part_number]).to eq 1
     end
   end
+
+  context "GSM PLMNS address type" do
+    let(:pdu) { "07912491500030592414D044241354C4C3E5E5F91C00004190200180108095D6B0BEECCE83F4E17558EF4EAF5920B2BB3C0759C36D10485C27D741E4B7BC3E7EDBC3EE32481F9EA7CBEC751E0485324132980D0793C96EB7196E0792C16C38984C76BBCD6E3B900C66C3C164B2DB6D666381C86F71BA2C5F8741319A2CC7CA818A75B90BB47CBBE9E1351D0482E568B4D94D768BDD5C202292092AE2E1F2F27C0E02" }
+    it do
+      message_part = decoder.decode
+      expect(message_part.address).to eq("DHL Express")
+      expect(message_part.body).to match /^Vazeny zakaznik/
+    end
+  end
+
 end

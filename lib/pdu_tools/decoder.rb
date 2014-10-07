@@ -12,16 +12,16 @@ module PDUTools
       @sca_length = take(2, :integer) * 2                # Service center address length
       if @sca_length > 0
         @sca_type = parse_address_type take(2)            # Service center address type
-        @sca = parse_address take(@sca_length - 2), @sca_type          # Service center address
+        @sca = parse_address take(@sca_length - 2), @sca_type, @sca_length # Service center address
       end
       @pdu_type = parse_pdu_type take(2, :binary)   # PDU type octet
       @message_reference = take(2) if @pdu_type[:mti] == :sms_submit
       @address_length = take(2, :integer)
       @address_type = parse_address_type take(2)
-      @address = parse_address take(@address_length), @address_type
+      @address = parse_address take(@address_length), @address_type, @address_length
       @pid = take(2)
       @data_coding_scheme = parse_data_coding_scheme take(2, :binary)
-      @sc_timestamp = parse_7byte_timestamp take(14) if @pdu_type[:mti] == :sms_deliver
+      @sc_timestamp = parse_7byte_timestamp take(14) if [:sms_deliver, :sms_deliver_report].include? @pdu_type[:mti]
       case @pdu_type[:vpf]
       when :absolute
         @validity_period = parse_7byte_timestamp take(14)
@@ -68,14 +68,22 @@ module PDUTools
       when "81"
         :national
       else
-        raise StandardError, "unknown address type"
+        if type.to_i(16).to_s(2)[1,3] == "101"
+          :a7bit
+        else
+          raise StandardError, "unknown address type: #{type}"
+        end
       end
     end
 
-    def parse_address address, type
-      address = swapped2normal address
-      if type == :international
-        address.prepend "+"
+    def parse_address address, type, length
+      if type == :a7bit
+        address = decode7bit address, length
+      else
+        address = swapped2normal address
+        if type == :international
+          address.prepend "+"
+        end
       end
       address
     end

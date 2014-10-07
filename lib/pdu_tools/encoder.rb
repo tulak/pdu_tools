@@ -101,7 +101,6 @@ module PDUTools
 
     def prepare_recipient recipient
       Phoner::Phone.default_country_code ||= "421"
-
       address_type = "91" # International
       address = Phoner::Phone.parse(recipient).format("%c%a%n")
       address_length = "%02X" % address.length
