@@ -4,7 +4,7 @@ module PDUTools
     include Helpers
     # http://read.pudn.com/downloads150/sourcecode/embed/646395/Short%20Message%20in%20PDU%20Encoding.pdf
     def initialize pdu_hex, direction=:sc_to_ms
-      @pdu_hex = pdu_hex
+      @pdu_hex = pdu_hex.dup
       @direction = direction
     end
 
@@ -18,6 +18,9 @@ module PDUTools
       @message_reference = take(2) if @pdu_type[:mti] == :sms_submit
       @address_length = take(2, :integer)
       @address_type = parse_address_type take(2)
+      if [:national, :international].include? @address_type
+        @address_length = @address_length.odd? ? @address_length + 1 : @address_length # Always take byte aligned - hexdecimal F is added when odd number
+      end
       @address = parse_address take(@address_length), @address_type, @address_length
       @pid = take(2)
       @data_coding_scheme = parse_data_coding_scheme take(2, :binary)
@@ -78,7 +81,7 @@ module PDUTools
 
     def parse_address address, type, length
       if type == :a7bit
-        address = decode7bit address, length
+        address = decode7bit address
       else
         address = swapped2normal address
         if type == :international
@@ -149,6 +152,8 @@ module PDUTools
       year, month, day, hour, minute, second, zone = swapped2normal(timestamp).split('').in_groups_of(2).collect(&:join)
       d = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second} +%02d:00" % (zone.to_i / 4)
       Time.parse(d)
+    rescue
+      binding.pry
     end
 
     def parse_validity_period period
@@ -165,6 +170,7 @@ module PDUTools
     end
 
     def parse_user_data data_length
+      @offset_7bit = 1
       if @pdu_type[:udhi]
         @udh_length = take(2, :integer) * 2
         udh = take(@udh_length)
@@ -172,11 +178,11 @@ module PDUTools
       end
       case @data_coding_scheme[:alphabet]
       when :a7bit
-        @message = decode7bit @pdu_hex, data_length
+        @message = gsm0338_to_utf8 decode7bit(@pdu_hex, @offset_7bit)
       when :a8bit
-        @message = decode8bit @pdu_hex, data_length
+        @message = gsm0338_to_utf8 decode8bit(@pdu_hex, data_length)
       when :a16bit
-        @message = decode16bit @pdu_hex, data_length
+        @message = gsm0338_to_utf8 decode16bit(@pdu_hex, data_length)
       end
     end
 
@@ -186,8 +192,10 @@ module PDUTools
       case iei
       when "00"
         reference = take 2, :integer, header
+        @offset_7bit = 0
       when "08"
         reference = take 4, :integer, header
+        @offset_7bit = 1
       else
         binding.pry
         raise StandardError, "unsupported Information Element Identifier in User Data Header: #{iei}"

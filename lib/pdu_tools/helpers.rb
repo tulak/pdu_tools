@@ -22,6 +22,14 @@ module PDUTools
       string
     end
 
+    def gsm0338_to_utf8 string
+      GSM_03_38_ESCAPES.each do |replace, find|
+        string.gsub! find, replace
+      end
+      string
+    end
+
+
     def dec2hexbyte dec
       "%02X" % dec
     end
@@ -65,33 +73,34 @@ module PDUTools
       string.scan(/../).collect(&:reverse).join.gsub(/F$/,'')
     end
 
-    # def decode7bit data, length
-    #   septets = data.to_i(16).to_s(2).split('').in_groups_of(7).collect(&:join)[0,length]
-    #   septets.collect do |s|
-    #     s.to_i(2).chr
-    #   end.join
-    # end
-
-    def decode7bit textdata, length
+    def decode7bit textdata, offset=1
+      ret = ""
       bytes = []
       textdata.split('').each_slice(2) do |s|
         bytes << "%08b" % s.join.to_i(16)
       end
-      bit = (bytes.size % 7)
-      bytes.reverse!
+
+      cur_septet = ""
+      next_septet = ""
+      last_char = ""
+
       bytes.each_with_index do |byte, index|
-        if bit == 0 or index == 0
-          bytes.insert(index, "")
-          bit = 7 if bit == 0
-          next
+        to_take = ([0,1].include? offset) ? 7 : 8-offset
+        cur_septet.prepend byte[offset, to_take]
+        next_septet = byte[0,offset] if offset > 0
+        ret << cur_septet.to_i(2).chr
+
+        if offset == 7
+          offset = 1
+          ret << next_septet.to_i(2).chr
+          cur_septet = ""
         else
-          bytes[index-1] = "#{bytes[index-1]}#{(bytes[index]||"")[0,bit]}"
-          bytes[index] = bytes[index][bit..-1] if bytes[index]
-          bit -= 1
+          offset += 1
+          cur_septet = next_septet
         end
+        next_septet = nil
       end
-      bytes = bytes.reverse.collect{|b| "0#{b}".to_i(2) }.collect{|b| b.zero? ? nil : b }.compact
-      bytes.collect{|b| b.chr }.join
+      ret
     end
 
     def decode8bit data, length

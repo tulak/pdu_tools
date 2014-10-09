@@ -1,6 +1,9 @@
 module PDUTools
   class MessagePart
     attr_reader :address, :body, :timestamp, :validity_period, :user_data_header
+    attr_writer :body
+    attr_accessor :metadata
+
     def initialize address, body, timestamp, validity_period, user_data_header
       @address = address
       @body = body
