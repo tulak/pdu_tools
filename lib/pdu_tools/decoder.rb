@@ -73,7 +73,7 @@ module PDUTools
       when "101"
         :a7bit
       else
-        raise StandardError, "unknown address type: #{type}"
+        raise DecodeError, "unknown address type: #{type}"
       end
     end
 
@@ -150,8 +150,6 @@ module PDUTools
       year, month, day, hour, minute, second, zone = swapped2normal(timestamp).split('').in_groups_of(2).collect(&:join)
       d = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second} +%02d:00" % (zone.to_i / 4)
       Time.parse(d)
-    rescue
-      binding.pry
     end
 
     def parse_validity_period period
@@ -196,7 +194,7 @@ module PDUTools
         @offset_7bit = 1
       else
         binding.pry
-        raise StandardError, "unsupported Information Element Identifier in User Data Header: #{iei}"
+        raise DecodeError, "unsupported Information Element Identifier in User Data Header: #{iei}"
       end
       parts = take 2, :integer, header
       part_number = take 2, :integer, header
@@ -207,5 +205,6 @@ module PDUTools
       }
     end
 
+    DecodeError = Class.new(StandardError)
   end
 end

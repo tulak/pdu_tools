@@ -69,4 +69,12 @@ describe PDUTools::Decoder do
     end
   end
 
+  context "Raise DecodeError when cannot decode" do
+    let(:pdu) { "07912491500000410403F055F542F14101124175208030CD30BD0C8A81DC6F7B1EF426AFC37A17C8FA6687D5F432E84D5E87F56F7B1D3467D7F5E23AA856ABB940" }
+
+    it do
+      expect{ decoder.decode }.to raise_error(PDUTools::Decoder::DecodeError)
+    end
+  end
+
 end
