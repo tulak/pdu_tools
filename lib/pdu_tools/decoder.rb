@@ -73,6 +73,8 @@ module PDUTools
       else
         if type.to_i(16).to_s(2)[1,3] == "101"
           :a7bit
+        elsif type.to_i(16).to_s(2)[1,3] == "100"
+          :national
         else
           raise StandardError, "unknown address type: #{type}"
         end
