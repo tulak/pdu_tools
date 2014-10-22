@@ -65,19 +65,15 @@ module PDUTools
     end
 
     def parse_address_type type
-      case type
-      when "91"
+      case type.to_i(16).to_s(2)[1,3]
+      when "001"
         :international
-      when "81"
+      when "010", "100", "000"
         :national
+      when "101"
+        :a7bit
       else
-        if type.to_i(16).to_s(2)[1,3] == "101"
-          :a7bit
-        elsif type.to_i(16).to_s(2)[1,3] == "100"
-          :national
-        else
-          raise StandardError, "unknown address type: #{type}"
-        end
+        raise StandardError, "unknown address type: #{type}"
       end
     end
 

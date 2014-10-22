@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'pdu_tools'
-  s.version     = '0.0.6'
+  s.version     = '0.0.7'
   s.date        = '2014-10-13'
   s.summary     = "Tools for encoding and decoding GSM SMS PDUs."
   s.description = s.summary
