@@ -193,7 +193,6 @@ module PDUTools
         reference = take 4, :integer, header
         @offset_7bit = 1
       else
-        binding.pry
         raise DecodeError, "unsupported Information Element Identifier in User Data Header: #{iei}"
       end
       parts = take 2, :integer, header
