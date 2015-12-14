@@ -18,7 +18,7 @@ module PDUTools
       @message_reference = take(2) if @pdu_type[:mti] == :sms_submit
       @address_length = take(2, :integer)
       @address_type = parse_address_type take(2)
-      if [:national, :international].include? @address_type
+      if [:national, :international, :a7bit].include? @address_type
         @address_length = @address_length.odd? ? @address_length + 1 : @address_length # Always take byte aligned - hexdecimal F is added when odd number
       end
       @address = parse_address take(@address_length), @address_type, @address_length
