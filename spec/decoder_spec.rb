@@ -28,8 +28,9 @@ describe PDUTools::Decoder do
     it "should decode" do
       message_part = decoder.decode
       expect(message_part.user_data_header).to be_present
-      expect(message_part.user_data_header[:parts]).to eq 2
-      expect(message_part.user_data_header[:part_number]).to eq 1
+      expect(message_part.user_data_header[:multipart]).to be_present
+      expect(message_part.user_data_header[:multipart][:parts]).to eq 2
+      expect(message_part.user_data_header[:multipart][:part_number]).to eq 1
     end
   end
 

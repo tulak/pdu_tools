@@ -14,7 +14,8 @@ module PDUTools
 
     def complete?
       return true unless @user_data_header
-      if @user_data_header[:parts] > 1
+      return true unless @user_data_header[:multipart]
+      if @user_data_header[:multipart][:parts] > 1
         false
       else
         true

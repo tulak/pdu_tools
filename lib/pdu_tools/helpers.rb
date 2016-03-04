@@ -73,7 +73,7 @@ module PDUTools
       string.scan(/../).collect(&:reverse).join.gsub(/F$/,'')
     end
 
-    def decode7bit textdata, offset=1
+    def decode7bit textdata, length = nil, offset = 1
       ret = ""
       bytes = []
       textdata.split('').each_slice(2) do |s|
@@ -100,7 +100,11 @@ module PDUTools
         end
         next_septet = nil
       end
-      ret
+      if length
+        ret[0..length - 1]
+      else
+        ret
+      end
     end
 
     def decode8bit data, length
