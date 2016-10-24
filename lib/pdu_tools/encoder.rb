@@ -102,7 +102,11 @@ module PDUTools
     def prepare_recipient recipient
       Phoner::Phone.default_country_code ||= "421"
       address_type = "91" # International
-      address = Phoner::Phone.parse(recipient).format("%c%a%n")
+      if @options[:force_recipient]
+        address = recipient
+      else
+        address = Phoner::Phone.parse(recipient).format("%c%a%n")
+      end
       address_length = "%02X" % address.length
       address_encoded = normal2swapped address
       address_length + address_type + address_encoded
