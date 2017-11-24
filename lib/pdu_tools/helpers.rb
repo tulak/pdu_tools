@@ -114,11 +114,13 @@ module PDUTools
       end.join
     end
 
+    # Decodes 16bit UTF-16 string into UTF-8 string
     def decode16bit data, length
-      dobule_octets = data.split('').in_groups_of(4).collect(&:join)[0, length/2]
-      dobule_octets.collect do |o|
-        [o.to_i(16)].pack("U")
-      end.join
+      data.split('').in_groups_of(4).collect()
+      double_octets = data.split('').in_groups_of(4).map(&:join).map{|x| x.to_i(16) }[0, length / 2] # integer values
+      double_octets.collect do |o|
+        [o].pack('S')
+      end.join.force_encoding('utf-16le').encode('utf-8')
     end
   end
 end

@@ -87,4 +87,16 @@ describe PDUTools::Decoder do
     end
   end
 
+  context "Decode UTF-16 / UCS2 data" do
+    let(:pdu) { "0791249194099990040C9124910408426100087101303182438004D83DDC4D" }
+    let(:utf16_data) { "D83DDC4D" } # thumbs up smiley in UTF-16 / UCS2
+    let(:utf8_data) { [128077].pack('U') } # thumbs up smiley in UTF-8
+
+    it do
+      expect(decoder.decode16bit(utf16_data, utf16_data.length)).to eql(utf8_data)
+      message_part = decoder.decode
+      expect(message_part.body).to eql(utf8_data)
+    end
+  end
+
 end
