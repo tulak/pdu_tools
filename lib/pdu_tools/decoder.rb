@@ -193,7 +193,7 @@ module PDUTools
           reference = take 2, :integer, iei_data
           parts = take 2, :integer, iei_data
           part_number = take 2, :integer, iei_data
-          ret[:multipart] = { reference: reference, parts: parts, part_number: part_number }
+          ret[:multipart] = { reference: reference, parts: parts, part_number: part_number, iei_type: iei_type }
           @offset_7bit = 0
         when '05'
           dest_port = take 4, :integer, iei_data
@@ -203,8 +203,8 @@ module PDUTools
           reference = take 4, :integer, iei_data
           parts = take 2, :integer, iei_data
           part_number = take 2, :integer, iei_data
-          ret[:multipart] = { reference: reference, parts: parts, part_number: part_number }
-          @offset_7bit += 1
+          ret[:multipart] = { reference: reference, parts: parts, part_number: part_number, iei_type: iei_type }
+          @offset_7bit = 1
         else
           ret[:unknown] ||= {}
           ret[:unknown][iei_type] = iei_data.dup
