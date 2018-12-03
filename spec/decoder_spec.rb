@@ -79,14 +79,6 @@ describe PDUTools::Decoder do
     end
   end
 
-  context "Raise DecodeError when cannot decode" do
-    let(:pdu) { "07912491500000410403F055F542F14101124175208030CD30BD0C8A81DC6F7B1EF426AFC37A17C8FA6687D5F432E84D5E87F56F7B1D3467D7F5E23AA856ABB940" }
-
-    it do
-      expect{ decoder.decode }.to raise_error(PDUTools::Decoder::DecodeError)
-    end
-  end
-
   context "Decode UTF-16 / UCS2 data" do
     let(:pdu) { "0791249194099990040C9124910408426100087101303182438004D83DDC4D" }
     let(:utf16_data) { "D83DDC4D" } # thumbs up smiley in UTF-16 / UCS2

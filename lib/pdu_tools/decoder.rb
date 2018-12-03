@@ -18,9 +18,7 @@ module PDUTools
       @message_reference = take(2) if @pdu_type[:mti] == :sms_submit
       @address_length = take(2, :integer)
       @address_type = parse_address_type take(2)
-      if [:national, :international, :a7bit].include? @address_type
-        @address_length = @address_length.odd? ? @address_length + 1 : @address_length # Always take byte aligned - hexdecimal F is added when odd number
-      end
+      @address_length = @address_length.odd? ? @address_length + 1 : @address_length # Always take byte aligned - hexdecimal F is added when odd number
       @address = parse_address take(@address_length), @address_type, @address_length
       @pid = take(2)
       @data_coding_scheme = parse_data_coding_scheme take(2, :binary)
@@ -65,16 +63,18 @@ module PDUTools
     end
 
     def parse_address_type type
-      case type.to_i(16).to_s(2)[1,3]
-      when "001"
-        :international
-      when "010", "100", "000"
-        :national
-      when "101"
-        :a7bit
-      else
-        raise DecodeError, "unknown address type: #{type}"
-      end
+      map = {
+        "000" => :unknown,
+        "001" => :international,
+        "010" => :national,
+        "011" => :network_specific,
+        "100" => :subscriber,
+        "101" => :a7bit,
+        "110" => :abbreviated,
+        "111" => :reserved
+      }
+      bin_type = type.to_i(16).to_s(2)[1,3]
+      map[bin_type]
     end
 
     def parse_address address, type, length
