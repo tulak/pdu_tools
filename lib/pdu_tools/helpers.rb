@@ -84,6 +84,12 @@ module PDUTools
       next_septet = ""
       last_char = ""
 
+      if offset > 1 && bytes.length
+        cur_septet = bytes.shift
+        cur_septet = cur_septet.slice( 0, cur_septet.length - offset )
+        offset = cur_septet.length + 1
+      end
+
       bytes.each_with_index do |byte, index|
         to_take = ([0,1].include? offset) ? 7 : 8-offset
         cur_septet.prepend byte[offset, to_take]
