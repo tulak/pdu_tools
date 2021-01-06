@@ -31,6 +31,19 @@ describe PDUTools::Decoder do
       expect(message_part.user_data_header[:multipart]).to be_present
       expect(message_part.user_data_header[:multipart][:parts]).to eq 2
       expect(message_part.user_data_header[:multipart][:part_number]).to eq 1
+      expect(message_part.body).to eq 'This is a test messageThis is a test messageThis is a test messageThis is a test messageThis is a test messageThis is a test messageThis is a test messa'
+    end
+
+    context "with extra padding" do
+      let(:pdu) { "07912933035011804409D055F3DB5D060000411120712071022A080701030003990202A09976D7E9E5390B640FB3D364103DCD668364B3562CD692C1623417" }
+      it "should decode" do
+        message_part = decoder.decode
+        expect(message_part.user_data_header).to be_present
+        expect(message_part.user_data_header[:multipart]).to be_present
+        expect(message_part.user_data_header[:multipart][:parts]).to eq 2
+        expect(message_part.user_data_header[:multipart][:part_number]).to eq 2
+        expect(message_part.body).to eq 'Minutes, valid till 23-11-2014.'
+      end
     end
   end
 

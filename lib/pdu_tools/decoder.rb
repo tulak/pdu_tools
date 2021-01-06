@@ -171,6 +171,13 @@ module PDUTools
         @udh_length = take(2, :integer) * 2
         udh = take(@udh_length)
         @user_data_header = parse_user_data_header udh
+
+        if (@data_coding_scheme[:alphabet] === :a7bit)
+          udh_bit_length = ((@udh_length/2) + 1) * 8
+          next_septet_start =  ( udh_bit_length.to_f / 7 ).ceil * 7
+          offset = next_septet_start > udh_bit_length ? next_septet_start - udh_bit_length : 0
+          @offset_7bit = offset if offset > 1
+        end
       end
       case @data_coding_scheme[:alphabet]
       when :a7bit
